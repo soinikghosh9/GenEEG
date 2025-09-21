@@ -48,11 +48,11 @@ Dependencies (core)
 
 - Matplotlib / seaborn
 
-License
 
-Suggested: MIT.
+**License**
+MIT.
 
-Contact
+## Contact
 
 Soinik Ghosh — School of Biomedical Engineering, IIT BHU, Varanasi, India
 Email: soinikghosh.rs.bme23@itbhu.ac.in
