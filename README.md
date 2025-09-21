@@ -1,4 +1,4 @@
-# GenEEG — Patient-Adaptive EEG Synthesis for Improved Seizure Detection
+# GenEEG — Patient-Specific Generative AI for EEG Data Synthesis in Seizure Detection
 
 
 <img width="1383" height="1103" alt="geneeg drawio" src="https://github.com/user-attachments/assets/bf713f6b-8e31-406a-ab5f-043962bcad43" />
