@@ -1,5 +1,7 @@
 # GenEEG — Patient-Adaptive EEG Synthesis for Improved Seizure Detection
-[geneeg.full_cropped.pdf](https://github.com/user-attachments/files/22451311/geneeg.full_cropped.pdf)
+
+
+<img width="1383" height="1103" alt="geneeg drawio" src="https://github.com/user-attachments/assets/bf713f6b-8e31-406a-ab5f-043962bcad43" />
 
 **Short description**  
 GenEEG is a patient-adaptive generative framework that produces high-quality synthetic EEG sequences to improve automated seizure detection. It combines a multi-domain Variational Autoencoder (VAE) to learn a robust latent space with a Latent Diffusion Model (LDM) that generates patient- and state-conditioned EEG (Normal / Preictal / Ictal). Targeted augmentation and sequential fine-tuning address class imbalance and inter-patient variability to improve downstream classifiers.
