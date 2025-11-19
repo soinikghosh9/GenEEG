@@ -1,0 +1,98 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+geneeg_env/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Data files (but keep data/ folder code)
+# data/  # COMMENTED OUT - we need the data folder Python code!
+*.edf
+*.csv
+*.h5
+*.hdf5
+*.mat
+
+# Datasets (large files)
+Siena_dataset/
+chb-mit-scalp-eeg-database-1.0.0/
+*.summary
+
+# Model checkpoints
+checkpoints/
+*.pth
+*.pt
+*.ckpt
+models_saved/
+saved_models/
+
+# Results
+results/
+outputs/
+logs/
+runs/
+wandb/
+
+# Tensorboard
+events.out.tfevents.*
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Documentation
+docs/_build/
+site/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.log
+
+# Large files
+*.zip
+*.tar.gz
+*.rar
