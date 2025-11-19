@@ -19,8 +19,8 @@ class TrainingConfig:
     # These will be overridden by run scripts:
     # - test_quick.py: Uses these default values (2 epochs for ultra-fast testing)
     # - run_siena_experiment.py / run_chb_experiment.py: Uses 100 epochs for production
-    VAE_EPOCHS_DEFAULT = 2  # Ultra-fast testing mode (was 20)
-    LDM_EPOCHS_DEFAULT = 2  # Ultra-fast testing mode (was 20)
+    VAE_EPOCHS_DEFAULT = 100  # Full production training (was 2 for testing)
+    LDM_EPOCHS_DEFAULT = 100  # Full production training (was 2 for testing)
     VAE_EPOCHS_PRODUCTION = 100  # Full training (Siena/CHB-MIT)
     LDM_EPOCHS_PRODUCTION = 100  # Full training (Siena/CHB-MIT)
     
