@@ -345,6 +345,22 @@ def calculate_fid_score(
     import torch
     from scipy.linalg import sqrtm
     
+    # CRITICAL FIX: Limit samples to prevent memory overflow
+    # FID computation with N samples requires O(N^2) memory for covariance matrix
+    # For 20480-dim features, even 1000 samples = 20480x20480 matrix = 3.15 GB
+    MAX_SAMPLES_FOR_FID = 500  # Limit to 500 samples max to keep memory under 1 GB
+    
+    if len(real_samples) > MAX_SAMPLES_FOR_FID:
+        # Randomly sample without replacement
+        real_indices = np.random.choice(len(real_samples), MAX_SAMPLES_FOR_FID, replace=False)
+        real_samples = real_samples[real_indices]
+        print(f"    [FID] Subsampled real data: {len(real_samples)} samples")
+    
+    if len(synthetic_samples) > MAX_SAMPLES_FOR_FID:
+        synthetic_indices = np.random.choice(len(synthetic_samples), MAX_SAMPLES_FOR_FID, replace=False)
+        synthetic_samples = synthetic_samples[synthetic_indices]
+        print(f"    [FID] Subsampled synthetic data: {len(synthetic_samples)} samples")
+    
     # Flatten to (N, C*T)
     real_flat = real_samples.reshape(len(real_samples), -1)
     synthetic_flat = synthetic_samples.reshape(len(synthetic_samples), -1)
