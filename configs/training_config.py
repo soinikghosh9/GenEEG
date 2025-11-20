@@ -17,10 +17,10 @@ class TrainingConfig:
     # EPOCH CONFIGURATION (different for testing vs full training)
     # ========================================
     # These will be overridden by run scripts:
-    # - test_quick.py: Uses these default values (optimized for quick testing)
+    # - test_quick.py: Uses these default values (optimized for quality testing)
     # - run_siena_experiment.py / run_chb_experiment.py: Uses 100 epochs for production
-    VAE_EPOCHS_DEFAULT = 50  # Quick testing mode (balanced speed vs quality)
-    LDM_EPOCHS_DEFAULT = 20  # Quick testing mode (LDM converges faster)
+    VAE_EPOCHS_DEFAULT = 80  # Increased for better reconstruction quality
+    LDM_EPOCHS_DEFAULT = 40  # Increased for better generation quality
     VAE_EPOCHS_PRODUCTION = 100  # Full training (Siena/CHB-MIT)
     LDM_EPOCHS_PRODUCTION = 100  # Full training (Siena/CHB-MIT)
     
