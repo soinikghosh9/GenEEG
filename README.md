@@ -1,5 +1,8 @@
 # GenEEG: Patient-Adaptive Epileptic Seizure Detection with VAE-LDM and CL-LOPO
 
+<img width="739" height="233" alt="Screenshot 2025-11-21 010830" src="https://github.com/user-attachments/assets/08f54c64-5481-4d21-aaf1-76e35b643356" />
+
+
 **GenEEG** is a continual learning framework for automated seizure detection that combines neurophysiologically conditioned variational autoencoders (VAE) with latent diffusion models (LDM) to generate synthetic EEG data and adapt to individual patients in class-imbalanced settings.
 
 <img width="1472" height="1172" alt="geneeg drawio (1)" src="https://github.com/user-attachments/assets/332292a8-961a-4417-9f1e-1a35f4f23de5" />
