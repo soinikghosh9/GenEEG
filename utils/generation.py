@@ -55,9 +55,10 @@ def ddim_sampling(
     class_labels: torch.Tensor,
     feature_vectors: torch.Tensor,
     diffusion_timesteps: int = 1000,
-    num_inference_steps: int = 50,
-    eta: float = 0.5,  # OPTIMIZED: Increased from 0.3 to 0.5 for better diversity
+    num_inference_steps: int = 60,  # OPTIMIZED: Increased from 50 for better quality
+    eta: float = 0.8,  # OPTIMIZED: Increased from 0.5 to 0.8 for more diversity
     cfg_scale: float = 5.0,  # FIXED: Increased from 2.5 to 5.0 for stronger conditioning (matches original)
+    temperature: float = 1.2,  # Added explicit temperature control
     device: str = 'cuda'
 ) -> torch.Tensor:
     """
@@ -200,7 +201,7 @@ def ddim_sampling(
             if i < len(timesteps) - 1:
                 # CRITICAL FIX: Add temperature scaling for better diversity
                 # Higher temperature = more variation between samples
-                temperature = 1.2  # FIXED: Increased from 1.0 for better diversity
+                # temperature is now a parameter (default 1.2)
                 noise = temperature * torch.randn_like(latent)
                 noise_std = noise.std().item()
                 if i == 0:
@@ -226,7 +227,8 @@ def generate_synthetic_eeg_batch(
     feature_vectors: np.ndarray,
     n_samples: int,
     diffusion_timesteps: int = 1000,
-    num_inference_steps: int = 50,
+    num_inference_steps: int = 60,
+    temperature: float = 1.2,
     device: str = 'cuda',
     ldm_scaling_factor: float = 1.0,
     data_mean: Optional[np.ndarray] = None,
@@ -297,8 +299,9 @@ def generate_synthetic_eeg_batch(
             feature_vectors=feature_tensor,
             diffusion_timesteps=diffusion_timesteps,
             num_inference_steps=num_inference_steps,
-            eta=0.5,  # OPTIMIZED: Increased for better diversity (was 0.3)
+            eta=0.8,  # OPTIMIZED: Increased for better diversity (was 0.5)
             cfg_scale=5.0,  # FIXED: Increased from 2.5 to 5.0 for stronger conditioning
+            temperature=temperature,
             device=device
         )
         
@@ -351,9 +354,19 @@ def generate_synthetic_eeg_batch(
             diff = np.abs(all_synthetic[i] - all_synthetic[i+1]).mean()
             sample_diffs.append(diff)
         avg_diff = np.mean(sample_diffs)
-        print(f"    [DEBUG] Avg difference between consecutive samples: {avg_diff:.6f}")
-        if avg_diff < 1e-6:
-            print(f"    [WARNING] Samples appear IDENTICAL! (diff < 1e-6)")
+        
+        # Calculate normalized difference if std is available
+        if data_std is not None:
+            # Estimate normalized diff: diff / mean(data_std)
+            norm_diff = avg_diff / (np.mean(data_std) + 1e-9)
+            print(f"    [DEBUG] Avg difference between consecutive samples: {avg_diff:.6e} (Normalized: {norm_diff:.6f})")
+            
+            if norm_diff < 1e-3:  # Check normalized difference (1e-3 is reasonable threshold)
+                print(f"    [WARNING] Samples appear IDENTICAL! (Norm diff < 1e-3)")
+        else:
+            print(f"    [DEBUG] Avg difference between consecutive samples: {avg_diff:.6e}")
+            if avg_diff < 1e-9:  # Extremely low threshold for raw float equality
+                print(f"    [WARNING] Samples appear IDENTICAL! (diff < 1e-9)")
     
     return all_synthetic[:n_samples]  # Trim to exact count
 
@@ -365,7 +378,8 @@ def generate_balanced_synthetic_dataset(
     real_data_raw: Dict[int, np.ndarray],
     n_samples_per_class: int,
     diffusion_timesteps: int = 1000,
-    num_inference_steps: int = 50,
+    num_inference_steps: int = 60,
+    temperature: float = 1.2,
     device: str = 'cuda',
     ldm_scaling_factor: float = 1.0,
     data_mean: Optional[np.ndarray] = None,
@@ -422,6 +436,7 @@ def generate_balanced_synthetic_dataset(
             n_samples=n_samples_per_class,
             diffusion_timesteps=diffusion_timesteps,
             num_inference_steps=num_inference_steps,
+            temperature=temperature,
             device=device,
             ldm_scaling_factor=ldm_scaling_factor,
             data_mean=data_mean,

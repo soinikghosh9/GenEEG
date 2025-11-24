@@ -180,6 +180,7 @@ def train_vae(
     model_save_path: str,
     ewc_params: Optional[Dict[str, torch.Tensor]] = None,
     lambda_ewc: float = 10000.0,
+    disable_kl_annealing: bool = False,
     # Configurable loss weights (default to config values, set to 0 to disable)
     vae_l1_weight: Optional[float] = None,
     vae_stft_weight: Optional[float] = None,
@@ -370,7 +371,14 @@ def train_vae(
         'contrastive_loss': [],
         'feature_recon_loss': [],
         'stft_loss': [],
+        'dwt_loss': [],
+        'sharpness_loss': [],
+        'minority_focus_loss': [],
+        'low_freq_loss': [],
         'high_freq_loss': [],
+        'edge_artifact_loss': [],
+        'connectivity_loss': [],
+        'freq_band_loss': [],
         'ewc_loss': []
     }
     
@@ -429,7 +437,7 @@ def train_vae(
         
         # Compute current KL weight with annealing
         current_kl_weight = kl_weight
-        if VAE_USE_KL_ANNEALING:
+        if VAE_USE_KL_ANNEALING and not disable_kl_annealing:
             if epoch < VAE_KL_WARMUP_EPOCHS:
                 current_kl_weight = 0.0
             elif epoch < VAE_KL_WARMUP_EPOCHS + VAE_KL_ANNEAL_EPOCHS:
@@ -440,7 +448,7 @@ def train_vae(
         # The feature head should only be trained once the latent space stabilizes
         # Otherwise, it learns on an unstable distribution and fails when KL kicks in
         current_feature_recon_weight = feature_recon_weight
-        if VAE_USE_KL_ANNEALING:
+        if VAE_USE_KL_ANNEALING and not disable_kl_annealing:
             if epoch < VAE_KL_WARMUP_EPOCHS + VAE_KL_ANNEAL_EPOCHS:
                 # During KL annealing, gradually ramp up feature reconstruction weight
                 # This prevents the spike at epoch 10 when KL reaches full strength
@@ -448,10 +456,12 @@ def train_vae(
                 current_feature_recon_weight = feature_recon_weight * progress
         
         # Log KL annealing status
-        if epoch == VAE_KL_WARMUP_EPOCHS:
+        if disable_kl_annealing and epoch == 0:
+            print(f"[KL ANNEALING] DISABLED for Continual Learning step. Using full weight {kl_weight:.6f}")
+        elif epoch == VAE_KL_WARMUP_EPOCHS and not disable_kl_annealing:
             print(f"[KL ANNEALING] Epoch {epoch+1}: KL warmup complete, starting annealing from 0 to {kl_weight:.6f}")
             print(f"[FEATURE RECON] Epoch {epoch+1}: Starting feature reconstruction weight ramp from 0 to {feature_recon_weight:.4f}")
-        elif epoch == VAE_KL_WARMUP_EPOCHS + VAE_KL_ANNEAL_EPOCHS:
+        elif epoch == VAE_KL_WARMUP_EPOCHS + VAE_KL_ANNEAL_EPOCHS and not disable_kl_annealing:
             print(f"[KL ANNEALING] Epoch {epoch+1}: KL annealing complete, using full weight {kl_weight:.6f}")
             print(f"[FEATURE RECON] Epoch {epoch+1}: Feature reconstruction weight now at full {feature_recon_weight:.4f}")
         
@@ -1028,8 +1038,15 @@ def train_vae(
             metrics['contrastive_loss'].append(avg_contrastive_loss)
             metrics['feature_recon_loss'].append(avg_feature_recon_loss)
             metrics['stft_loss'].append(avg_stft_loss)
+            metrics['dwt_loss'].append(avg_dwt_loss)
+            metrics['sharpness_loss'].append(avg_sharpness_loss)
+            metrics['minority_focus_loss'].append(avg_minority_focus_loss)
+            metrics['low_freq_loss'].append(avg_low_freq_loss)
             metrics['high_freq_loss'].append(avg_high_freq_loss)
-            metrics['ewc_loss'].append(avg_ewc_loss)  # FIXED: Track EWC in metrics
+            metrics['edge_artifact_loss'].append(avg_edge_artifact_loss)
+            metrics['connectivity_loss'].append(avg_connectivity_loss)
+            metrics['freq_band_loss'].append(avg_freq_band_loss)
+            metrics['ewc_loss'].append(avg_ewc_loss)
             
             # Save best model
             if avg_total_loss < best_loss:

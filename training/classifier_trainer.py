@@ -463,6 +463,15 @@ def evaluate_pytorch_classifier(
             all_labels_test.extend(batch_labels.numpy())
             all_probas_test_list.append(probas_batch.cpu().numpy())
     
+    # DEBUG: Diagnose 0.0 accuracy
+    if all_labels_test:
+        unique_preds, counts_preds = np.unique(all_preds_test, return_counts=True)
+        unique_labels, counts_labels = np.unique(all_labels_test, return_counts=True)
+        print(f"  [DEBUG] Unique Predictions: {dict(zip(unique_preds, counts_preds))}")
+        print(f"  [DEBUG] Unique Labels: {dict(zip(unique_labels, counts_labels))}")
+        print(f"  [DEBUG] First 10 Preds: {all_preds_test[:10]}")
+        print(f"  [DEBUG] First 10 Labels: {all_labels_test[:10]}")
+    
     # Handle empty test set
     if not all_labels_test:
         print(f"  [WARN] Test set for {full_model_name} was empty. No evaluation metrics to report.")

@@ -134,9 +134,14 @@ class TrainingConfig:
     USE_EWC = True  # Elastic Weight Consolidation
     USE_EXPERIENCE_REPLAY = True  # Experience Replay
     
-    EWC_LAMBDA = 5000  # EWC regularization strength
+    EWC_LAMBDA = 5000  # Default (kept for backward compatibility)
+    VAE_EWC_LAMBDA = 2000  # High stability for VAE to preserve features
+    LDM_EWC_LAMBDA = 100   # Lower for LDM to allow learning new patient distribution
+    
     EXPERIENCE_REPLAY_RATIO = 0.3  # Proportion of replay samples
     EXPERIENCE_REPLAY_BUFFER_SIZE_PER_PATIENT = 500  # Samples to store per patient
+    
+    VAE_KL_ANNEALING_RESTART = False  # If False, disable KL annealing during CL steps
     
     # ========================================
     # VALIDATION CONFIGURATION
@@ -250,3 +255,8 @@ LDM_SCALING_FACTOR = TrainingConfig.LDM_SCALING_FACTOR
 LDM_EMA_DECAY = TrainingConfig.LDM_EMA_DECAY
 LDM_LR_WARMUP_STEPS = TrainingConfig.LDM_LR_WARMUP_STEPS
 LDM_USE_LOGNORMAL_T = TrainingConfig.LDM_USE_LOGNORMAL_T
+
+# CL Constants
+VAE_EWC_LAMBDA = TrainingConfig.VAE_EWC_LAMBDA
+LDM_EWC_LAMBDA = TrainingConfig.LDM_EWC_LAMBDA
+VAE_KL_ANNEALING_RESTART = TrainingConfig.VAE_KL_ANNEALING_RESTART

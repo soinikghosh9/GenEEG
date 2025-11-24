@@ -127,7 +127,11 @@ from configs import (
     VAE_LATENT_CHANNELS,
     NUM_CLASSES,
     LDM_LOW_FREQ_PRESERVATION_WEIGHT,
-    LDM_MOMENT_LOSS_WEIGHT
+    LDM_MOMENT_LOSS_WEIGHT,
+    VAE_EWC_LAMBDA,
+    LDM_EWC_LAMBDA,
+    VAE_KL_ANNEALING_RESTART,
+    CLASSIFIER_EPOCHS
 )
 
 
@@ -434,7 +438,9 @@ def sequential_patient_training(
             lr_vae, 
             device,
             os.path.join(cl_step_dir, "vae_model.pt"), 
-            ewc_params=ewc_vae_params
+            ewc_params=ewc_vae_params,
+            lambda_ewc=VAE_EWC_LAMBDA,
+            disable_kl_annealing=(not is_first_patient and not VAE_KL_ANNEALING_RESTART)
         )
         
         # Create latent cache
@@ -479,7 +485,7 @@ def sequential_patient_training(
             p2_gamma=1.0,
             ema_decay=0.9995,
             ewc_params=ewc_ldm_params,
-            lambda_ewc=5000.0
+            lambda_ewc=LDM_EWC_LAMBDA
         )
         
         # CRITICAL: Clear GPU memory after intensive training
@@ -1011,7 +1017,8 @@ def main_cl_lopo_validation(
             real_data_raw=real_data_by_class_raw,  # NEW: Pass raw data for feature extraction
             n_samples_per_class=n_synthetic_per_class,
             diffusion_timesteps=LDM_DIFFUSION_TIMESTEPS,
-            num_inference_steps=50,  # DDIM with 50 steps (20x faster than DDPM)
+            num_inference_steps=60,  # OPTIMIZED: Increased to 60 for better quality
+            temperature=1.2,  # OPTIMIZED: Added temperature for diversity
             device=device,
             ldm_scaling_factor=ldm_scaling_factor,
             data_mean=fold_mean_np,
@@ -1248,7 +1255,7 @@ def main_cl_lopo_validation(
             # Train and evaluate CNN-BiLSTM
             cnn_bilstm_model = CNNBiLSTM(num_classes=NUM_CLASSES).to(device)
             _, _ = train_pytorch_classifier(
-                cnn_bilstm_model, X_scen_scaled, y_scen, 50, 1e-4, device,
+                cnn_bilstm_model, X_scen_scaled, y_scen, CLASSIFIER_EPOCHS, 1e-4, device,
                 "CNN_BiLSTM", scenario_name, scenario_output_dir, class_names, validation_split=0.2
             )
             cnn_bilstm_results = evaluate_pytorch_classifier(

@@ -223,7 +223,12 @@ def plot_vae_training_losses(
                  fontsize=16, fontweight='bold', pad=20, color='#2C3E50')
     
     ax.grid(True, linestyle='--', alpha=0.3, linewidth=0.6, color='#BDBDBD')
-    ax.set_xlim(1, len(normalized_losses['total_loss']))
+    num_epochs = len(normalized_losses['total_loss'])
+    if num_epochs <= 1:
+        ax.set_xlim(0.9, 1.1)
+        ax.set_xticks([1])
+    else:
+        ax.set_xlim(1, num_epochs)
     ax.set_ylim(-0.05, 1.05)
     
     # Subtle spine styling
@@ -396,7 +401,12 @@ def plot_ldm_training_losses(
                  fontsize=16, fontweight='bold', pad=20, color='#2C3E50')
     
     ax.grid(True, linestyle='--', alpha=0.3, linewidth=0.6, color='#BDBDBD')
-    ax.set_xlim(1, len(normalized_losses['total']))
+    num_epochs = len(normalized_losses['total'])
+    if num_epochs <= 1:
+        ax.set_xlim(0.9, 1.1)
+        ax.set_xticks([1])
+    else:
+        ax.set_xlim(1, num_epochs)
     ax.set_ylim(-0.05, 1.05)
     
     # Subtle spine styling

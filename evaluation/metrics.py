@@ -329,10 +329,11 @@ def calculate_fid_score(
     device: str = 'cuda'
 ) -> float:
     """
-    Calculate Fréchet Inception Distance (FID) for EEG data.
+    Calculate Fréchet Inception Distance (FID) using neurophysiological features.
     
-    Uses a simplified approach: compute statistics in flattened space.
-    For EEG, we use spectral features instead of CNN features.
+    Instead of using raw flattened EEG (which causes OOM with 20k dims),
+    we extract 12-dim feature vectors (Power, Hjorth, Entropy, etc.)
+    and compute FID in this semantic space.
     
     Args:
         real_samples: Real EEG (N, C, T)
@@ -342,41 +343,37 @@ def calculate_fid_score(
     Returns:
         fid: FID score (lower is better)
     """
-    import torch
     from scipy.linalg import sqrtm
+    from data.preprocessing import calculate_eeg_features
     
-    # CRITICAL FIX: Limit samples to prevent memory overflow
-    # FID computation with N samples requires O(N^2) memory for covariance matrix
-    # For 20480-dim features, even 1000 samples = 20480x20480 matrix = 3.15 GB
-    MAX_SAMPLES_FOR_FID = 500  # Limit to 500 samples max to keep memory under 1 GB
+    # Extract features for real data
+    real_features = []
+    for sample in real_samples:
+        # sample is (C, T)
+        feat = calculate_eeg_features(sample)
+        real_features.append(feat)
+    real_features = np.array(real_features)  # (N, 12)
     
-    if len(real_samples) > MAX_SAMPLES_FOR_FID:
-        # Randomly sample without replacement
-        real_indices = np.random.choice(len(real_samples), MAX_SAMPLES_FOR_FID, replace=False)
-        real_samples = real_samples[real_indices]
-        print(f"    [FID] Subsampled real data: {len(real_samples)} samples")
+    # Extract features for synthetic data
+    synthetic_features = []
+    for sample in synthetic_samples:
+        feat = calculate_eeg_features(sample)
+        synthetic_features.append(feat)
+    synthetic_features = np.array(synthetic_features)  # (M, 12)
     
-    if len(synthetic_samples) > MAX_SAMPLES_FOR_FID:
-        synthetic_indices = np.random.choice(len(synthetic_samples), MAX_SAMPLES_FOR_FID, replace=False)
-        synthetic_samples = synthetic_samples[synthetic_indices]
-        print(f"    [FID] Subsampled synthetic data: {len(synthetic_samples)} samples")
+    # Compute statistics in Feature Space (12 dims)
+    mu_real = np.mean(real_features, axis=0)
+    mu_synthetic = np.mean(synthetic_features, axis=0)
     
-    # Flatten to (N, C*T)
-    real_flat = real_samples.reshape(len(real_samples), -1)
-    synthetic_flat = synthetic_samples.reshape(len(synthetic_samples), -1)
-    
-    # Compute statistics
-    mu_real = np.mean(real_flat, axis=0)
-    mu_synthetic = np.mean(synthetic_flat, axis=0)
-    
-    cov_real = np.cov(real_flat, rowvar=False)
-    cov_synthetic = np.cov(synthetic_flat, rowvar=False)
+    cov_real = np.cov(real_features, rowvar=False)
+    cov_synthetic = np.cov(synthetic_features, rowvar=False)
     
     # FID formula: ||mu1 - mu2||^2 + Tr(C1 + C2 - 2*sqrt(C1*C2))
     diff = mu_real - mu_synthetic
     diff_squared = np.sum(diff ** 2)
     
     # Matrix square root
+    # Product of covariance matrices (12x12) is small and fast
     covmean = sqrtm(cov_real @ cov_synthetic)
     
     # Handle numerical errors
@@ -531,7 +528,7 @@ def evaluate_synthetic_quality(
         }
         
         print(f"      FID: {fid:.2f}")
-        print(f"      Diversity: {diversity:.3f}")
+        print(f"      Diversity: {diversity:.4e}")
         print(f"      Feature Match: {feature_stats['n_passed']}/{feature_stats['n_total']} passed KS test")
     
     return quality_metrics
