@@ -2,6 +2,7 @@
 
 <img width="739" height="233" alt="Screenshot 2025-11-21 010830" src="https://github.com/user-attachments/assets/08f54c64-5481-4d21-aaf1-76e35b643356" />
 
+Research Paper Link: https://doi.org/10.1016/j.compbiomed.2025.111398 
 
 **GenEEG** is a continual learning framework for automated seizure detection that combines neurophysiologically conditioned variational autoencoders (VAE) with latent diffusion models (LDM) to generate synthetic EEG data and adapt to individual patients in class-imbalanced settings.
 
@@ -405,15 +406,21 @@ This generates:
 
 ## Citation
 
+Research Paper Link: https://doi.org/10.1016/j.compbiomed.2025.111398
 If you use GenEEG in your research, please cite:
 
+_Ghosh, S., Sharma, S., & Sharma, N. (2025). GenEEG: Improving epileptic EEG detection through patient-adaptive latent diffusion and continual learning. Computers in Biology and Medicine, 201, 111398. https://doi.org/10.1016/j.compbiomed.2025.111398_
+
 ```bibtex
-@article{geneeg2024,
-  title={GenEEG: Epileptic EEG Detection through Patient-Adaptive Latent Diffusion and Continual Learning},
-  author={[Your Name]},
-  journal={[Journal Name]},
-  year={2024}
-}
+@article{GHOSH2026111398,
+  title = {GenEEG: Improving epileptic EEG detection through patient-adaptive latent diffusion and continual learning},
+  journal = {Computers in Biology and Medicine},
+  volume = {201},
+  pages = {111398},
+  year = {2026},
+  issn = {0010-4825},
+  doi = {https://doi.org/10.1016/j.compbiomed.2025.111398},
+  url = {https://www.sciencedirect.com/science/article/pii/S0010482525017524}
 ```
 
 ## License
@@ -468,6 +475,6 @@ This work utilizes:
 
 ## Copyright
 
-© 2024-2025 Soinik Ghosh. All rights reserved.
+© 2025-2026 Soinik Ghosh. All rights reserved.
 
 This software is provided for academic and research purposes only. Any commercial use, redistribution, or modification requires explicit written permission from the author. For any quaries contact soinikghosh.rs.bme23@itbhu.ac.in.
